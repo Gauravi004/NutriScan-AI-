@@ -1,25 +1,33 @@
-from google import genai
 import json
-import streamlit as st
+import os
+from google import genai
 
 # ==============================
-# Create Gemini Client
+# Gemini Client Setup
 # ==============================
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+client = genai.Client(api_key=API_KEY)
 
 # ==============================
 # Diet Generator Function
 # ==============================
 def generate_diet(patient_id):
-    with open("final_diet_output.json", "r") as f:
+
+    # -------- Load patient data --------
+    with open("final_diet_output.json", "r", encoding="utf-8") as f:
         patients = json.load(f)
 
-    patient = next((p for p in patients if int(p["patient_id"]) == patient_id), None)
+    patient = next((p for p in patients if str(p["patient_id"]) == str(patient_id)), None)
+
     if not patient:
         return None
 
-    disease = patient["bert_prediction"]
+    disease = patient.get("bert_prediction", "General Health")
 
+    # ==============================
+    # PROMPT (AS YOU ASKED)
+    # ==============================
     prompt = f"""
 You are a clinical dietitian.
 
@@ -43,10 +51,10 @@ Snack:
 Dinner:
 """
 
+    # -------- Gemini Call --------
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="models/gemini-1.5-flash",
         contents=prompt
     )
 
-    diet_text = response.text
-    return {"diet_plan": diet_text}
+    return response.text
