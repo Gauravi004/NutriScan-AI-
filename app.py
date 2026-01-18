@@ -76,14 +76,20 @@ def create_pdf(patient_id, diet_text):
     pdf.ln(5)
     pdf.set_font("Arial", "", 11)
 
-    # Remove emojis to prevent Unicode errors
+    # Remove emojis first
     clean_text = remove_emojis(diet_text)
-    for line in clean_text.split("\n"):
+
+    # Replace unsupported characters with '?'
+    safe_text = clean_text.encode("latin1", "replace").decode("latin1")
+
+    # Write to PDF
+    for line in safe_text.split("\n"):
         pdf.multi_cell(0, 8, line)
 
     file_name = f"diet_plan_{patient_id}.pdf"
     pdf.output(file_name)
     return file_name
+
 
 # ==============================
 # Title
@@ -181,3 +187,4 @@ st.markdown("""
 💡 Tip: Drink water & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
+
