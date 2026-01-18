@@ -1,13 +1,11 @@
-import google.genai as genai
+from google import genai
 import json
 import streamlit as st
 
 # ==============================
-# Gemini Configuration
+# Create Gemini Client
 # ==============================
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 # ==============================
 # Diet Generator Function
@@ -45,7 +43,10 @@ Snack:
 Dinner:
 """
 
-    response = model.generate_content(input=prompt)
-    diet_text = response.result[0].content[0].text
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=prompt
+    )
 
+    diet_text = response.text
     return {"diet_plan": diet_text}
