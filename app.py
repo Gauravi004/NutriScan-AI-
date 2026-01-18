@@ -4,7 +4,6 @@
 import streamlit as st
 from fpdf import FPDF
 from ai_diet_generator import generate_diet
-import re
 
 # ==============================
 # Custom CSS
@@ -53,36 +52,24 @@ footer {visibility: hidden;}
 """, unsafe_allow_html=True)
 
 # ==============================
-# Remove emojis for PDF
+# PDF Generator (Unicode-safe)
 # ==============================
-def remove_emojis(text):
-    # Remove emojis and unsupported characters for FPDF
-    emoji_pattern = re.compile(
-        "["
-        "\U0001F600-\U0001F64F"
-        "\U0001F300-\U0001F5FF"
-        "\U0001F680-\U0001F6FF"
-        "\U0001F1E0-\U0001F1FF"
-        "\U0001F900-\U0001F9FF"
-        "\U0001FA70-\U0001FAFF"
-        "\u2600-\u26FF"
-        "]+", flags=re.UNICODE)
-    return emoji_pattern.sub(r'', text)
+class PDF(FPDF):
+    def header(self):
+        self.set_font("DejaVu", "B", 16)
+        self.cell(0, 10, "AI Diet Plan", 0, 1, "C")
+        self.ln(5)
 
-# ==============================
-# PDF Generator
-# ==============================
 def create_pdf(patient_id, diet_text):
-    pdf = FPDF()
+    pdf = PDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(0, 10, "AI Diet Plan", ln=True, align="C")
-    pdf.ln(5)
-    pdf.set_font("Arial", "", 12)
+    
+    # Add DejaVuSans font (supports Unicode & emojis)
+    pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+    pdf.set_font("DejaVu", "", 12)
 
-    clean_text = remove_emojis(diet_text)
-    for line in clean_text.split("\n"):
+    for line in diet_text.split("\n"):
         line = line.strip()
         if line:
             pdf.multi_cell(0, 8, line)
