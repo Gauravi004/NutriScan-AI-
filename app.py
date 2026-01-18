@@ -90,7 +90,7 @@ def create_pdf(patient_id, diet_text):
 st.title("🥗 AI Diet Planner 🍎")
 st.image(
     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-    use_container_width=True
+    width="stretch"
 )
 
 # ==============================
@@ -110,26 +110,18 @@ with col1:
             if diet_text:
                 st.success("✅ Diet Generated Successfully!")
 
-                lines = diet_text.split("\n")
-
-                diet = {
-                    "Day 1": {"Breakfast 🥣": "", "Lunch 🥗": "", "Snacks 🍎": "", "Dinner 🍛": ""},
-                    "Day 2": {"Breakfast 🥣": "", "Lunch 🥗": "", "Snacks 🍎": "", "Dinner 🍛": ""}
+                meals = {
+                    "Breakfast 🥣": "",
+                    "Lunch 🥗": "",
+                    "Snacks 🍎": "",
+                    "Dinner 🍛": ""
                 }
 
-                current_day = None
                 current_meal = None
 
-                for raw_line in lines:
+                for raw_line in diet_text.split("\n"):
                     line = raw_line.strip()
                     lower = line.lower()
-
-                    if "day 1" in lower:
-                        current_day = "Day 1"
-                        continue
-                    if "day 2" in lower:
-                        current_day = "Day 2"
-                        continue
 
                     if lower.startswith("breakfast"):
                         current_meal = "Breakfast 🥣"
@@ -144,21 +136,19 @@ with col1:
                         current_meal = "Dinner 🍛"
                         continue
 
-                    if current_day and current_meal and line:
-                        diet[current_day][current_meal] += f"- {line}<br>"
+                    if current_meal and line:
+                        meals[current_meal] += f"- {line}<br>"
 
                 st.subheader("Your Diet Plan 🥗")
 
-                for day, meals in diet.items():
-                    st.markdown(f"### {day}")
-                    for meal, content in meals.items():
-                        if content:
-                            st.markdown(f"""
-                                <div class="diet-card">
-                                    <b>{meal}</b><br><br>
-                                    {content}
-                                </div>
-                            """, unsafe_allow_html=True)
+                for meal, content in meals.items():
+                    if content:
+                        st.markdown(f"""
+                            <div class="diet-card">
+                                <b>{meal}</b><br><br>
+                                {content}
+                            </div>
+                        """, unsafe_allow_html=True)
 
                 pdf = create_pdf(patient_id, diet_text)
                 with open(pdf, "rb") as f:
