@@ -184,7 +184,7 @@ with col1:
 
 with col2:
     st.image(
-        "assets/second.jpg",
+        "assets/imp.jpg",
         use_container_width=True
     )
     st.caption("Healthy Eating = Healthy Life 🥗")
@@ -197,6 +197,7 @@ st.markdown("""
 💡 Tip: Drink water regularly & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
