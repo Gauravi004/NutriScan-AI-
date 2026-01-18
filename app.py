@@ -2,13 +2,13 @@
 # Imports
 # ==============================
 import os
-st.write(os.listdir("assets"))
+
 
 import streamlit as st
 from fpdf import FPDF
 from ai_diet_generator import generate_diet
 import re
-
+st.write(os.listdir("assets"))
 # ==============================
 # Page Config
 # ==============================
@@ -200,6 +200,7 @@ st.markdown("""
 💡 Tip: Drink water regularly & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
