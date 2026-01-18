@@ -117,7 +117,7 @@ st.title("🥗 AI Diet Planner 🍎")
 st.caption("Personalized nutrition made simple & smart")
 
 st.image(
-    "main.jpg",
+    "assets/main.jpg",
     use_container_width=True
 )
 
@@ -184,7 +184,7 @@ with col1:
 
 with col2:
     st.image(
-        "second.jpg",
+        "assets/second.jpg",
         use_container_width=True
     )
     st.caption("Healthy Eating = Healthy Life 🥗")
@@ -197,4 +197,5 @@ st.markdown("""
 💡 Tip: Drink water regularly & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
+
 
