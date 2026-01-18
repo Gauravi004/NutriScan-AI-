@@ -32,8 +32,9 @@ Dinner:
 """
 
     response = client.models.generate_content(
-        model="models/gemini-pro-latest",
+        model="models/gemini-flash-lite-latest",
         contents=prompt
     )
 
     return response.text
+
