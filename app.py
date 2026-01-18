@@ -90,7 +90,7 @@ def create_pdf(patient_id, diet_text):
 st.title("🥗 AI Diet Planner 🍎")
 st.image(
     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-    use_container_width='stretch'
+    use_container_width=True
 )
 
 # ==============================
@@ -103,17 +103,13 @@ with col1:
 
     if st.button("Generate Diet Plan"):
         if patient_id.isdigit():
-            patient_id = int(patient_id)
 
-            diet_data = generate_diet(patient_id)
+            with st.spinner("Generating diet plan..."):
+                diet_text = generate_diet(patient_id)
 
-            if diet_data:
-                diet_text = diet_data["diet_plan"]
+            if diet_text:
                 st.success("✅ Diet Generated Successfully!")
 
-                # ==============================
-                # FLEXIBLE + SAFE PARSING
-                # ==============================
                 lines = diet_text.split("\n")
 
                 diet = {
@@ -128,47 +124,35 @@ with col1:
                     line = raw_line.strip()
                     lower = line.lower()
 
-                    # -------- DAY --------
                     if "day 1" in lower:
                         current_day = "Day 1"
-                        current_meal = None
                         continue
-
                     if "day 2" in lower:
                         current_day = "Day 2"
-                        current_meal = None
                         continue
 
-                    # -------- MEALS (flexible) --------
                     if lower.startswith("breakfast"):
                         current_meal = "Breakfast 🥣"
-                        line = re.sub(r'breakfast[:\-]*', '', line, flags=re.I).strip()
-
-                    elif lower.startswith("lunch"):
+                        continue
+                    if lower.startswith("lunch"):
                         current_meal = "Lunch 🥗"
-                        line = re.sub(r'lunch[:\-]*', '', line, flags=re.I).strip()
-
-                    elif lower.startswith("snack"):
+                        continue
+                    if lower.startswith("snack"):
                         current_meal = "Snacks 🍎"
-                        line = re.sub(r'snack[s]*[:\-]*', '', line, flags=re.I).strip()
-
-                    elif lower.startswith("dinner"):
+                        continue
+                    if lower.startswith("dinner"):
                         current_meal = "Dinner 🍛"
-                        line = re.sub(r'dinner[:\-]*', '', line, flags=re.I).strip()
+                        continue
 
-                    # -------- ADD CONTENT --------
                     if current_day and current_meal and line:
-                        diet[current_day][current_meal] += line + "<br>"
+                        diet[current_day][current_meal] += f"- {line}<br>"
 
-                # ==============================
-                # DISPLAY
-                # ==============================
                 st.subheader("Your Diet Plan 🥗")
 
                 for day, meals in diet.items():
                     st.markdown(f"### {day}")
                     for meal, content in meals.items():
-                        if content.strip():
+                        if content:
                             st.markdown(f"""
                                 <div class="diet-card">
                                     <b>{meal}</b><br><br>
@@ -176,9 +160,6 @@ with col1:
                                 </div>
                             """, unsafe_allow_html=True)
 
-                # ==============================
-                # PDF DOWNLOAD
-                # ==============================
                 pdf = create_pdf(patient_id, diet_text)
                 with open(pdf, "rb") as f:
                     st.download_button(
@@ -187,8 +168,10 @@ with col1:
                         file_name=pdf,
                         mime="application/pdf"
                     )
+
             else:
-                st.error("❌ Patient not found")
+                st.error("❌ Diet generation failed")
+
         else:
             st.warning("⚠️ Enter numeric ID only")
 
@@ -207,4 +190,3 @@ st.markdown("""
 💡 Tip: Drink water & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
-
