@@ -7,6 +7,15 @@ from ai_diet_generator import generate_diet
 import re
 
 # ==============================
+# Page Config
+# ==============================
+st.set_page_config(
+    page_title="AI Diet Planner",
+    page_icon="🥗",
+    layout="wide"
+)
+
+# ==============================
 # Custom CSS
 # ==============================
 st.markdown("""
@@ -39,19 +48,19 @@ div.stButton > button {
 .diet-card {
     background-color: #1f3d28;
     color: #e0ffe0;
-    padding: 18px;
-    border-radius: 15px;
-    margin-bottom: 15px;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 18px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.35);
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
 # ==============================
-# Remove emojis for PDF
+# Remove emojis (PDF only)
 # ==============================
 def remove_emojis(text):
     emoji_pattern = re.compile(
@@ -63,26 +72,24 @@ def remove_emojis(text):
         "\U0001F900-\U0001F9FF"
         "\U0001FA70-\U0001FAFF"
         "]+", flags=re.UNICODE)
-    return emoji_pattern.sub(r'', text)
+    return emoji_pattern.sub("", text)
 
 # ==============================
-# PDF Generator
+# PDF Generator (Unicode safe)
 # ==============================
 def create_pdf(patient_id, diet_text):
     pdf = FPDF()
     pdf.add_page()
+
     pdf.set_font("Arial", "B", 16)
     pdf.cell(0, 10, "AI Diet Plan", ln=True)
     pdf.ln(5)
+
     pdf.set_font("Arial", "", 11)
 
-    # Remove emojis first
     clean_text = remove_emojis(diet_text)
-
-    # Replace unsupported characters with '?'
     safe_text = clean_text.encode("latin1", "replace").decode("latin1")
 
-    # Write to PDF
     for line in safe_text.split("\n"):
         pdf.multi_cell(0, 8, line)
 
@@ -90,11 +97,11 @@ def create_pdf(patient_id, diet_text):
     pdf.output(file_name)
     return file_name
 
-
 # ==============================
 # Title
 # ==============================
 st.title("🥗 AI Diet Planner 🍎")
+
 st.image(
     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
     use_container_width=True
@@ -110,53 +117,24 @@ with col1:
 
     if st.button("Generate Diet Plan"):
         if patient_id.isdigit():
+
             with st.spinner("Generating diet plan..."):
                 diet_text = generate_diet(patient_id)
 
             if diet_text:
                 st.success("✅ Diet Generated Successfully!")
 
-                meals = {
-                    "Breakfast 🥣": "",
-                    "Lunch 🥗": "",
-                    "Snacks 🍎": "",
-                    "Dinner 🍛": ""
-                }
-
-                current_meal = None
-
-                for raw_line in diet_text.split("\n"):
-                    line = raw_line.strip()
-                    lower = line.lower()
-
-                    if lower.startswith("breakfast"):
-                        current_meal = "Breakfast 🥣"
-                        continue
-                    if lower.startswith("lunch"):
-                        current_meal = "Lunch 🥗"
-                        continue
-                    if lower.startswith("snack"):
-                        current_meal = "Snacks 🍎"
-                        continue
-                    if lower.startswith("dinner"):
-                        current_meal = "Dinner 🍛"
-                        continue
-
-                    if current_meal and line:
-                        meals[current_meal] += f"- {line}<br>"
-
                 st.subheader("Your Diet Plan 🥗")
 
-                for meal, content in meals.items():
-                    if content:
-                        st.markdown(f"""
-                            <div class="diet-card">
-                                <b>{meal}</b><br><br>
-                                {content}
-                            </div>
-                        """, unsafe_allow_html=True)
+                # ✅ Day-wise display (NO parsing, exact AI format)
+                for block in diet_text.split("\n\n"):
+                    st.markdown(f"""
+                        <div class="diet-card">
+                            {block.replace("\n", "<br>")}
+                        </div>
+                    """, unsafe_allow_html=True)
 
-                # Generate PDF (emojis removed automatically)
+                # PDF download
                 pdf = create_pdf(patient_id, diet_text)
                 with open(pdf, "rb") as f:
                     st.download_button(
@@ -183,8 +161,7 @@ with col2:
 # Footer
 # ==============================
 st.markdown("""
-<div style="text-align:center; font-size:14px; margin-top:20px; color:#00ff7f;">
+<div style="text-align:center; font-size:14px; margin-top:25px; color:#00ff7f;">
 💡 Tip: Drink water & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
-
