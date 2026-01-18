@@ -86,6 +86,18 @@ def create_pdf(patient_id, diet_text):
     return file_name
 
 # ==============================
+# Cache API calls to prevent repeated quota use
+# ==============================
+@st.cache_data(show_spinner=False)
+def get_diet(patient_id):
+    try:
+        return generate_diet(patient_id)
+    except Exception as e:
+        # Log error if needed
+        print("API Error:", e)
+        return None
+
+# ==============================
 # Title & Banner
 # ==============================
 st.title("🥗 AI Diet Planner 🍎")
@@ -106,7 +118,7 @@ with col1:
         if patient_id.isdigit():
 
             with st.spinner("Generating diet plan..."):
-                diet_text = generate_diet(patient_id)
+                diet_text = get_diet(patient_id)
 
             if diet_text:
                 st.success("✅ Diet Generated Successfully!")
@@ -162,7 +174,7 @@ with col1:
                     )
 
             else:
-                st.error("❌ Diet generation failed. Try again.")
+                st.error("❌ Diet generation failed due to API limits or network error.")
 
         else:
             st.warning("⚠️ Enter numeric Patient ID only")
