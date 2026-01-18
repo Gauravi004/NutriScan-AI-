@@ -90,7 +90,8 @@ def create_pdf(patient_id, diet_text):
 st.title("🥗 AI Diet Planner 🍎")
 st.image(
     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-    width="stretch"
+    use_container_width=True
+
 )
 
 # ==============================
@@ -168,7 +169,8 @@ with col1:
 with col2:
     st.image(
         "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce",
-        width=300
+        use_container_width=True
+
     )
     st.caption("Healthy Eating = Healthy Life 🥗")
 
@@ -180,3 +182,4 @@ st.markdown("""
 💡 Tip: Drink water & walk 30 minutes daily
 </div>
 """, unsafe_allow_html=True)
+
