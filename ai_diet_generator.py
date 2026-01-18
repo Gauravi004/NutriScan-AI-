@@ -1,40 +1,51 @@
-from google import genai
+import google.generativeai as genai
 import streamlit as st
+import json
 
-# Configure client
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+# ==============================
+# CONFIG
+# ==============================
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
+model = genai.GenerativeModel("models/gemini-flash-lite-latest")
+
+# ==============================
+# FUNCTION
+# ==============================
 def generate_diet(patient_id):
 
+    with open("final_diet_output.json", "r") as f:
+        patients = json.load(f)
+
+    patient = next((p for p in patients if str(p["patient_id"]) == str(patient_id)), None)
+    if not patient:
+        return None
+
+    disease = patient["bert_prediction"]
+
     prompt = f"""
-You are a professional Indian dietician.
+You are a clinical dietitian.
 
-Create a simple, clear, diabetic-friendly Indian diet plan
-for Patient ID {patient_id}.
+Generate a 2-day diet plan.
 
-Strictly follow this format:
+Patient ID: {patient_id}
+Medical Condition: {disease}
 
+FORMAT STRICTLY:
+
+Day 1:
 Breakfast:
-- item 1
-- item 2
-
 Lunch:
-- item 1
-- item 2
-
-Snacks:
-- item 1
-- item 2
-
+Snack:
 Dinner:
-- item 1
-- item 2
+
+Day 2:
+Breakfast:
+Lunch:
+Snack:
+Dinner:
 """
 
-    response = client.models.generate_content(
-        model="models/gemini-flash-lite-latest",
-        contents=prompt
-    )
+    response = model.generate_content(prompt)
 
     return response.text
-
