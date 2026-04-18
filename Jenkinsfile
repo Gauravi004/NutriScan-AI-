@@ -5,21 +5,21 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building...'
-                sh 'npm install'
+                echo 'Installing dependencies...'
+                sh 'pip install -r requirements.txt'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing...'
-                sh 'npm test'
+                echo 'Running app...'
+                sh 'python app.py'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying...'
+                echo 'Deploy step (will improve later)...'
             }
         }
     }
